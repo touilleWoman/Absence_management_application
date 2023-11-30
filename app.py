@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, date
 import streamlit as st
 
 
-
 def business_days_difference(start_date, end_date):
     current_date = start_date
     business_days = 0
@@ -15,8 +14,6 @@ def business_days_difference(start_date, end_date):
         # Move to the next day
         current_date += timedelta(days=1)
     return business_days
-
-
 
 
 st.header("Bienvenue à la crèche :blue[Grand Bateaux] :boat:", divider="rainbow")
@@ -34,6 +31,24 @@ input = st.date_input(
     format="YYYY.MM.DD",
 )
 
+#warning will be True if user's leave is more than 5 days, but with less than 15 days notice
+#confirm button will be deactivated if warning=True
+
+if "warning" not in st.session_state:
+    st.session_state.warning = False
+
+
+def notice_check(duration, notice_time):
+    if duration > 5 and notice_time < timedelta(days=15):
+        st.warning(
+            "Les congés supérieur à 5 jours se posent minimum 15 jours en avance",
+            icon="⚠️",
+        )
+        st.session_state.warning = True
+    else:
+        st.session_state.warning = False
+
+
 if len(input) == 2:
     notice_time = input[0] - date.today()
     duration = business_days_difference(input[0], input[1])
@@ -45,11 +60,11 @@ if len(input) == 2:
         notice_time.days,
         "jours en avance",
     )
-    if duration > 5 and notice_time < timedelta(days=15):
-        st.warning(
-            "Les congés supérieur à 5 jours se posent minimum 15 jours en avance", icon="⚠️"
-        )
+    notice_check(duration, notice_time)
 
+confirmed = st.button("Confirmer", type="primary", disabled=st.session_state.warning)
+if confirmed:
+    "woo"
 
 st.divider()
 st.subheader("Délai de prévenance")
