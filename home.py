@@ -1,5 +1,11 @@
-from datetime import datetime, timedelta, date
 import streamlit as st
+from datetime import datetime, timedelta, date
+
+st.set_page_config(
+    page_title = "Crèche grand bateaux",
+    page_icon = "random",
+    initial_sidebar_state = "auto"
+)
 
 
 def business_days_difference(start_date, end_date):
