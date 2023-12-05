@@ -16,7 +16,7 @@ next_year = today.year + 1
 minimum_start_day = date.today() + timedelta(days=2)
 max_day = date(next_year, 9, 1)
 
-input = st.date_input(
+leavedays = st.date_input(
     "Sélectionner une journée ou une période",
     (minimum_start_day, minimum_start_day),
     minimum_start_day,
@@ -30,9 +30,9 @@ input = st.date_input(
 if "warning" not in st.session_state:
     st.session_state.warning = False
 
-if len(input) == 2:
-    notice_time = input[0] - date.today()
-    duration = business_days_difference(input[0], input[1])
+if len(leavedays) == 2:
+    notice_time = leavedays[0] - date.today()
+    duration = business_days_difference(leavedays[0], leavedays[1])
 
     st.write(
         "Vous allez poser",
@@ -44,17 +44,18 @@ if len(input) == 2:
     notice_check(duration, notice_time)
 
 confirmed = st.button("Confirmer", type="primary", disabled=st.session_state.warning)
-if confirmed:
-    st.write(firstname, surname, "sera abente", input)
 
 
-# Initialize connection.
-conn = st.connection("snowflake")
-session = conn.session()
+
+
 
 if confirmed:
-    formatted_start_date = input[0].strftime("%Y-%m-%d")
-    formatted_end_date = input[1].strftime("%Y-%m-%d")
+    # Initialize connection.
+    conn = st.connection("snowflake")
+    session = conn.session()
+    
+    formatted_start_date = leavedays[0].strftime("%Y-%m-%d")
+    formatted_end_date = leavedays[1].strftime("%Y-%m-%d")
     child_id_df = session.sql(
         f"""SELECT id FROM DAYCARE.PUBLIC.CHILDREN WHERE firstname = '{firstname}' AND surname = '{surname}'"""
     )
@@ -69,8 +70,8 @@ if confirmed:
             f"""INSERT INTO DAYCARE.PUBLIC.LEAVES (child, start_date, end_date) 
         VALUES ('{child_id}', '{formatted_start_date}', '{formatted_end_date}')"""
         ).collect()
-        st.success("Success!", icon="✅")
-
+        sucess_message = f"Vous avez posé les congés pour {firstname} {surname} : {formatted_start_date} -- {formatted_end_date}"
+        st.success(sucess_message, icon="✅")
 
 st.divider()
 st.subheader("Délai de prévenance")

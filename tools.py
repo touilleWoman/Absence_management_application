@@ -22,5 +22,11 @@ def notice_check(duration, notice_time):
             icon="⚠️",
         )
         st.session_state.warning = True
+    elif duration == 0:
+        st.warning(
+            "Vous avez pris 0 jour de congé, merci de revérifier vos saisis",
+            icon="⚠️",
+        )
+        st.session_state.warning = True
     else:
         st.session_state.warning = False
